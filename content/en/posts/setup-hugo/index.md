@@ -1,7 +1,3 @@
-Here’s an updated version of your blog post with the GitHub Pages deployment steps included:
-
----
-
 +++
 date    = '2025-10-29T14:08:41+01:00'
 draft   = false
