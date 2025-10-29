@@ -78,25 +78,43 @@ To make my blog live, I used **GitHub Pages**:
    I added `blog\.github\workflows\hugo.yaml` to automatically build the site on every push:
 
 ```yaml
-name: Hugo Build and Deploy
-on:
-  push:
-    branches:
-      - main
 jobs:
-  build-deploy:
+  # Build job
+  build:
     runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.137.1
     steps:
-      - uses: actions/checkout@v3
-      - uses: peaceiris/actions-hugo@v3
+      - name: Install Hugo CLI
+        run: |
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          && sudo dpkg -i ${{ runner.temp }}/hugo.deb          
+      - name: Install Dart Sass
+        run: sudo snap install dart-sass
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          hugo-version: '0.116.0'
-      - name: Build
-        run: hugo --minify
-      - uses: peaceiris/actions-gh-pages@v3
+          submodules: recursive
+          fetch-depth: 0
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Install Node.js dependencies
+        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+      - name: Build with Hugo
+        env:
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
+          HUGO_ENVIRONMENT: production
+          TZ: Europe/Amsterdam
+        run: |
+          hugo \
+            --gc \
+            --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          path: ./public
 ```
 
 2. **Configure GitHub Pages**:
@@ -116,7 +134,7 @@ jobs:
 4. **Running the action manually**:
 
     Go to Actions, "Deploy Hugo site to Pages", select run workflow and click the green run workflow button.
-    
+
 ## Next Steps...
 
 With Hugo set up and deployed, the next step is simple: **start making notes and writing posts**!
