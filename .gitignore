@@ -1,0 +1,7 @@
+*.test
+imports.*
+dist/
+public/
+resources/
+.DS_Store 
+*.lock
