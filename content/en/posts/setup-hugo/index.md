@@ -68,6 +68,6 @@ blog\
     hugo.toml
 ```
 
-## Next Steps
+## Next Steps...
 
 With Hugo set up, the next step is simple: **start making notes and writing posts**!
